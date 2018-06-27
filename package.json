@@ -1,0 +1,31 @@
+{
+  "name": "react-sandbox",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "NODE_ENV=development node fuse.js dev",
+    "build": "NODE_ENV=production node fuse.js prod"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "data.task": "^3.1.1",
+    "fuse-box": "^3.3.0",
+    "react": "^16.4.1",
+    "react-dom": "^16.4.1"
+  },
+  "devDependencies": {
+    "@types/react": "^16.4.2",
+    "@types/react-dom": "^16.0.6",
+    "autoprefixer": "^8.6.4",
+    "express": "^4.16.3",
+    "jest": "^23.2.0",
+    "postcss-modules": "^1.1.0",
+    "prettier": "^1.13.6",
+    "ts-jest": "^22.4.6",
+    "typescript": "^2.9.2",
+    "uglify-es": "^3.3.9"
+  }
+}
