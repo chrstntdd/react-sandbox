@@ -5,5 +5,5 @@
 /build
 
 # Misc
-
 /.fusebox
+/coverage
