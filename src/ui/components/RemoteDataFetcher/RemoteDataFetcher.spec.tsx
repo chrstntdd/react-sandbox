@@ -10,12 +10,12 @@ jest.useFakeTimers();
 
 const fakeFetchSuccess = () =>
   new Promise((resolve, reject) => {
-    setTimeout(() => resolve('data'), 1);
+    setTimeout(() => resolve('data'), 0);
   });
 
 const fakeFetchFailure = () =>
   new Promise((resolve, reject) => {
-    setTimeout(() => reject('error'), 1);
+    setTimeout(() => reject('error'), 0);
   });
 
 const MockTask = new Task((reject, resolve) => {
@@ -35,7 +35,7 @@ const requiredProps = {
 };
 
 afterEach(() => {
-  cleanup(); // automatically unmount and cleanup DOM after the test is finished.
+  cleanup();
 
   requiredProps.handleTask.notAsked.mockClear();
   requiredProps.handleTask.loading.mockClear();
@@ -43,24 +43,16 @@ afterEach(() => {
   requiredProps.handleTask.success.mockClear();
 });
 
-test('RemoteDataFetcher should be in a loading state after being mounted', () => {
-  const { getByText } = render(<RemoteDataFetcher {...requiredProps} />);
-
-  expect(getByText('Loading...')).toBeDefined();
-  expect(requiredProps.handleTask.notAsked).toHaveBeenCalledTimes(1);
-  expect(requiredProps.handleTask.loading).toHaveBeenCalledTimes(1);
-  expect(requiredProps.handleTask.error).toHaveBeenCalledTimes(0);
-  expect(requiredProps.handleTask.success).toHaveBeenCalledTimes(0);
-});
-
 test('RemoteDataFetcher should be in a success state after the async data has resolved', async () => {
   const { getByText, container } = render(<RemoteDataFetcher {...requiredProps} />);
+
+  expect(getByText('Loading...')).toBeInTheDOM();
 
   jest.runAllTimers(); // trigger the mocked fakeFetchSuccess
 
   await waitForElement(() => getByText('Loading...'), { container });
 
-  expect(getByText(/Got yer data:/i)).toBeDefined();
+  expect(getByText(/Got yer data:/i)).toBeInTheDOM();
   expect(requiredProps.handleTask.notAsked).toHaveBeenCalledTimes(1);
   expect(requiredProps.handleTask.loading).toHaveBeenCalledTimes(1);
   expect(requiredProps.handleTask.error).toHaveBeenCalledTimes(0);
@@ -78,11 +70,13 @@ test('RemoteDataFetcher should be in an error state after the async data has rej
   };
   const { getByText, container } = render(<RemoteDataFetcher {...localRequiredProps} />);
 
+  expect(getByText('Loading...')).toBeInTheDOM();
+
   jest.runAllTimers(); // trigger the mocked fakeFetchFailure
 
   await waitForElement(() => getByText('Loading...'), { container });
 
-  expect(getByText(/Something went wrong:/i)).toBeDefined();
+  expect(getByText(/Something went wrong:/i)).toBeInTheDOM();
   expect(requiredProps.handleTask.notAsked).toHaveBeenCalledTimes(1);
   expect(requiredProps.handleTask.loading).toHaveBeenCalledTimes(1);
   expect(requiredProps.handleTask.error).toHaveBeenCalledTimes(1);
