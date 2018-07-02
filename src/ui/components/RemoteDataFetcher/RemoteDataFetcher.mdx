@@ -1,0 +1,39 @@
+---
+name: RemoteDataFetcher
+---
+
+import { Playground, PropsTable } from 'docz'
+import Task from 'data.task';
+import RemoteDataFetcher from './';
+
+# RemoteDataFetcher
+
+<PropsTable of={RemoteDataFetcher} />
+
+## Basic usage
+
+
+<Playground>
+  {() => {
+    const fakeFetchSuccess = () =>
+      new Promise((resolve, reject) => {
+        setTimeout(() => resolve('data'), 0);
+      });
+
+    const MockTask = new Task((reject, resolve) => {
+      fakeFetchSuccess()
+        .then(resolve)
+        .catch(reject);
+    });
+
+    return (<RemoteDataFetcher
+      task={MockTask}
+      handleTask={{
+        notAsked: () => <div>Nothing loaded</div>,
+        loading: () => <div>Loading...</div>,
+        error: error => <div>Something went wrong: {error}</div>,
+        success: data => <div>Got yer data: {data}</div>,
+      }}
+    />);
+  }}
+</Playground>
