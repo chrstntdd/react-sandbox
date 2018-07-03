@@ -2,16 +2,25 @@ import React, { Component } from 'react';
 
 import s from '@/ui/index.css';
 
-import { Router, Link } from '@/Router';
+import { Router, Link, Redirect } from '@/Router';
 
 class Home extends Component {
   render() {
-    return <div className="home">Home</div>;
+    return <div className="home" />;
+  }
+}
+class Dashboard extends Component {
+  render() {
+    return <div className="Dashboard">Dashboard</div>;
   }
 }
 class About extends Component {
   render() {
-    return <div className="About">About</div>;
+    return (
+      <div className="About">
+        <Redirect from="/" to="/dashboard" />
+      </div>
+    );
   }
 }
 class Contact extends Component {
@@ -33,6 +42,7 @@ class App extends Component {
           <Home path="/" />
           <About path="/about" />
           <Contact path="/contact" />
+          <Dashboard path="/dashboard" />
         </Router>
       </div>
     );

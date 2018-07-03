@@ -1,4 +1,6 @@
 import React from 'react';
+
+import { Location } from '@/Router';
 import { insertParams } from '@/Router/helpers';
 
 function RedirectRequest(uri) {

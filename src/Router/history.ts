@@ -1,4 +1,4 @@
-import { noop } from '@/utils';
+import { noop, canUseDOM } from '@/utils';
 
 ////////////////////////////////////////////////////////////////////////////////
 // createHistory(source) - wraps a history source
@@ -47,7 +47,8 @@ const createHistory = (source, options) => {
     },
 
     navigate(to, { state, replace = false } = {}) {
-      state = { ...state, key: Date.now() + '' };
+      state = { ...state, key: Date.now().toString() };
+
       // try...catch iOS Safari limits to 100 pushState calls
       try {
         if (transitioning || replace) {
@@ -61,15 +62,16 @@ const createHistory = (source, options) => {
 
       location = getLocation(source);
       transitioning = true;
-      let transition = new Promise(res => (resolveTransition = res));
+      const transition = new Promise(res => (resolveTransition = res));
       listeners.forEach(fn => fn());
       return transition;
     }
   };
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// Stores history entries in memory for testing or other platforms like Native
+/**
+ * @description Stores history entries in memory for testing or other platforms like Native
+ */
 const createMemorySource = (initialPathname = '/') => {
   const stack = [{ pathname: initialPathname, search: '' }];
   const states = [];
@@ -106,15 +108,11 @@ const createMemorySource = (initialPathname = '/') => {
   };
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// global history - uses window.history as the source if available, otherwise a
-// memory history
-const canUseDOM: boolean = !!(
-  typeof window !== 'undefined' &&
-  window.document &&
-  window.document.createElement
-);
-
+/**
+ * @description To retrieve a history source. Used window.history if
+ * available, but falls back to using a memory history that mirrors
+ * the same API
+ */
 const getSource = () => (canUseDOM ? window : createMemorySource());
 
 const globalHistory = createHistory(getSource());

@@ -1,5 +1,6 @@
-import { Redirect } from '@/Router/Redirect';
+import React from 'react';
 
+import { Redirect } from '@/Router/Redirect';
 import { hashParser } from './hash-parser';
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -13,6 +14,14 @@ const shouldNavigate = event =>
   !(event.metaKey || event.altKey || event.ctrlKey || event.shiftKey);
 
 const stripSlashes = (str: string): string => str.replace(/(^\/+|\/+$)/g, '');
+
+const createNamedContext = (name, defaultValue) => {
+  const Ctx = React.createContext(defaultValue);
+  Ctx.Consumer.displayName = `${name}.Consumer`;
+  Ctx.Provider.displayName = `${name}.Provider`;
+
+  return Ctx;
+};
 
 const createRoute = basepath => (element): Route => {
   if (element.props.default) {
@@ -233,13 +242,14 @@ const insertParams = (path, params) => {
 };
 
 const validateRedirect = (from, to) => {
-  const filter = segment => isDynamic(segment);
+  const filterFn = segment => isDynamic(segment);
+
   const fromString = segmentize(from)
-    .filter(filter)
+    .filter(filterFn)
     .sort()
     .join('/');
   const toString = segmentize(to)
-    .filter(filter)
+    .filter(filterFn)
     .sort()
     .join('/');
 
@@ -294,6 +304,7 @@ const reservedNames = ['uri', 'path'];
 ////////////////////////////////////////////////////////////////////////////////
 export {
   createRoute,
+  createNamedContext,
   startsWith,
   pick,
   match,

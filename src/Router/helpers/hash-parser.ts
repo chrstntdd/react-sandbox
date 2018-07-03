@@ -1,33 +1,36 @@
-const minMaxFacets = {
+import { compose } from '@/utils/fp';
+
+const facetsWithMinMax = {
   beds: true,
   baths: true,
   price: true,
   square_footage: true,
   num_stories: true,
-  lot_siz: true,
+  lot_size: true,
   year_built: true
 };
 
-const multiValueFacets = {
+const facetsWithMutliValue = {
   listing_type: true,
   property_type: true,
   school: true,
   sort: true
 };
 
-const replacePlusWithSpace = (stringWithPlus): string => stringWithPlus.replace('+', ' ');
+const replacePlusWithSpace = (stringWithPlus: string): string => stringWithPlus.replace('+', ' ');
+const removeFirstAndLastChars = (inputString: string): string => inputString.slice(1, -1);
+const splitOnBar = (inputString: string): string[] => inputString.split('|');
 
 /**
  *
  * @description Applied to each segment in the hash string
  */
 const parseFacetString = (name: string, facetString: string): any => {
-  /* facets that contain a min/max pair */
-  if (minMaxFacets[name]) {
+  if (facetsWithMinMax[name]) {
     /* all min/max facets are in the form 'x|y' */
-    const minMaxPair = facetString.split('|');
-
-    const [min, max] = minMaxPair.map(value => parseInt(value, 0)).sort((a, b) => a - b);
+    const [min, max] = splitOnBar(facetString)
+      .map(value => parseInt(value, 0))
+      .sort((a, b) => a - b);
 
     return {
       min,
@@ -35,13 +38,13 @@ const parseFacetString = (name: string, facetString: string): any => {
     };
   }
 
-  /* facets that contain a list of values */
-  if (multiValueFacets[name]) {
-    const removedBrackets = facetString.slice(1, -1);
+  if (facetsWithMutliValue[name]) {
+    const arrayOfMultiValues: string[] = compose(
+      splitOnBar,
+      removeFirstAndLastChars
+    )(facetString);
 
-    const arrayOfValues = removedBrackets.split('|');
-
-    return arrayOfValues.map(replacePlusWithSpace);
+    return arrayOfMultiValues.map(replacePlusWithSpace);
   }
 
   /* FALLBACK HANDLER */
@@ -65,7 +68,7 @@ const hashParser = (hash: string): {} => {
     }
 
     /* Start splitting the query string into more manageable pieces */
-    const facetComponents = curr.split('|');
+    const facetComponents = splitOnBar(curr);
 
     /* [city=1, Virginia+Beach] */
     const [facetType, facetValue] = [facetComponents.shift(), facetComponents.join('|')];
