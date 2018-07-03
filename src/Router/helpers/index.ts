@@ -1,4 +1,6 @@
-import { Redirect } from './Redirect';
+import { Redirect } from '@/Router/Redirect';
+
+import { hashParser } from './hash-parser';
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -53,9 +55,16 @@ interface ReturnRoute {
  *
  * `static > dynamic > wildcard > root`
  */
-const pick = (routes: Route[], uri: string): ReturnRoute | null => {
+const pick = (routes: Route[], uri: string, hash?: string): ReturnRoute | null => {
+  let hashParams;
   let match;
   let default_;
+
+  if (hash) {
+    hashParams = hashParser(hash);
+
+    console.log(hashParams);
+  }
 
   const [uriPathname] = uri.split('?');
   const uriSegments = segmentize(uriPathname);

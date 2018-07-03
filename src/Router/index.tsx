@@ -1,9 +1,9 @@
 import React from 'react';
-import { pick, resolve, match, createRoute } from './helpers';
-import { globalHistory, navigate, createHistory, createMemorySource } from './history';
-import { isRedirect } from './Redirect';
+import { pick, resolve, match, createRoute } from '@/Router/helpers';
+import { globalHistory, navigate, createHistory, createMemorySource } from '@/Router/history';
+import { isRedirect } from '@/Router/Redirect';
 
-import Link from './Link';
+import Link from '@/Router/Link';
 
 const createNamedContext = (name, defaultValue) => {
   const Ctx = React.createContext(defaultValue);
@@ -163,10 +163,9 @@ class RouterImpl extends React.PureComponent<PRouterImpl, SRouterImpl> {
       primary,
       ...domProps
     } = this.props;
-    let routes = React.Children.map(children, createRoute(basepath));
-    let { pathname } = location;
+    const routes = React.Children.map(children, createRoute(basepath));
 
-    let match = pick(routes, pathname);
+    const match = pick(routes, location.pathname, location.hash);
 
     if (match) {
       let {
@@ -179,14 +178,14 @@ class RouterImpl extends React.PureComponent<PRouterImpl, SRouterImpl> {
       // remove the /* from the end for child routes relative paths
       basepath = route.default ? basepath : route.path.replace(/\*$/, '');
 
-      let props = {
+      const props = {
         ...params,
         uri,
         location,
         navigate: (to, options) => navigate(resolve(to, uri), options)
       };
 
-      let clone = React.cloneElement(
+      const clone = React.cloneElement(
         element,
         props,
         element.props.children ? (
@@ -197,9 +196,9 @@ class RouterImpl extends React.PureComponent<PRouterImpl, SRouterImpl> {
       );
 
       // using 'div' for < 16.3 support
-      let FocusWrapper = primary ? FocusHandler : component;
+      const FocusWrapper = primary ? FocusHandler : component;
       // don't pass any props to 'div'
-      let wrapperProps = primary ? { uri, location, component, ...domProps } : domProps;
+      const wrapperProps = primary ? { uri, location, component, ...domProps } : domProps;
 
       return (
         <BaseContext.Provider value={{ baseuri: uri, basepath }}>
@@ -207,19 +206,6 @@ class RouterImpl extends React.PureComponent<PRouterImpl, SRouterImpl> {
         </BaseContext.Provider>
       );
     } else {
-      // Not sure if we want this, would require index routes at every level
-      // warning(
-      //   false,
-      //   `<Router basepath="${basepath}">\n\nNothing matched:\n\t${
-      //     location.pathname
-      //   }\n\nPaths checked: \n\t${routes
-      //     .map(route => route.path)
-      //     .join(
-      //       "\n\t"
-      //     )}\n\nTo get rid of this warning, add a default NotFound component as child of Router:
-      //   \n\tlet NotFound = () => <div>Not Found!</div>
-      //   \n\t<Router>\n\t  <NotFound default/>\n\t  {/* ... */}\n\t</Router>`
-      // );
       return null;
     }
   }
@@ -264,6 +250,7 @@ class FocusHandlerImpl extends React.Component<PFocusHandlerImpl, SFocusHandlerI
 
   static getDerivedStateFromProps(nextProps, prevState) {
     const initial = !prevState.uri;
+
     if (initial) {
       return {
         shouldFocus: true,
@@ -274,6 +261,7 @@ class FocusHandlerImpl extends React.Component<PFocusHandlerImpl, SFocusHandlerI
       const navigatedUpToMe =
         prevState.location.pathname !== nextProps.location.pathname &&
         nextProps.location.pathname === nextProps.uri;
+
       return {
         shouldFocus: uriHasChanged || navigatedUpToMe,
         ...nextProps
@@ -353,21 +341,14 @@ class FocusHandlerImpl extends React.Component<PFocusHandlerImpl, SFocusHandlerI
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-
-// Redirect.propTypes = {
-//   from: PropTypes.string,
-//   to: PropTypes.string.isRequired
-// };
-
-////////////////////////////////////////////////////////////////////////////////
 const Match = ({ path, children }) => (
   <BaseContext.Consumer>
     {({ baseuri }) => (
       <Location>
         {({ navigate, location }) => {
-          let resolvedPath = resolve(path, baseuri);
-          let result = match(resolvedPath, location.pathname);
+          const resolvedPath = resolve(path, baseuri);
+          const result = match(resolvedPath, location.pathname);
+
           return children({
             navigate,
             location,
