@@ -4,9 +4,8 @@
     "paths": {
       "@/*": ["src/*"]
     },
-    "outDir": "dist/",
-    "allowSyntheticDefaultImports": true,
     "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "checkJs": true,
     "declaration": false,
     "forceConsistentCasingInFileNames": true,
@@ -19,11 +18,16 @@
     "noImplicitReturns": true,
     "noImplicitThis": true,
     "noUnusedLocals": true,
-    "strict": false,
-    "pretty": true,
+    "outDir": "dist/",
     "removeComments": true,
     "sourceMap": true,
-    "typeRoots": ["./node_modules/@types"]
+    "target": "es6",
+    "typeRoots": ["./node_modules/@types"],
+    /* Debugging Options */
+    "listEmittedFiles": false /* Print names of generated files part of the compilation. */,
+    "listFiles": false /* Print names of files part of the compilation. */,
+    "pretty": true /* Stylize errors and messages using color and context. */,
+    "traceResolution": false /* Report module resolution log messages. */
   },
   "include": ["src/**/*.ts", "src/**/*.tsx"],
   "exclude": ["node_modules"]

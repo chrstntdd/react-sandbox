@@ -13,12 +13,7 @@ const autoprefixer = require('autoprefixer');
 
 const { info } = console;
 
-const POSTCSS_PLUGINS = [
-  autoprefixer({
-    browsers: ['>0.25%', 'Explorer 11'],
-    grid: true
-  })
-];
+const POSTCSS_PLUGINS = [autoprefixer({ browsers: ['>0.25%', 'Explorer 11'] })];
 
 const CLIENT_OUT = join(__dirname, 'build');
 const TEMPLATE = join(__dirname, 'src/index.html');
@@ -31,6 +26,7 @@ context(
         homeDir: 'src',
         output: `${CLIENT_OUT}/$name.js`,
         target: 'browser',
+        sourceMaps: true,
         cache: !IS_PRODUCTION,
         allowSyntheticDefaultImports: true,
         alias: { '@': '~' },
