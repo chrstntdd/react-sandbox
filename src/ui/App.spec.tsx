@@ -10,5 +10,5 @@ afterEach(cleanup);
 test('should render content', () => {
   const { getByText } = render(<App />);
 
-  expect(getByText('APP')).toBeInTheDOM();
+  expect(getByText('Home')).toBeInTheDOM();
 });

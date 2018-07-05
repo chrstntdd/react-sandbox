@@ -1,0 +1,8 @@
+/* APP WIDE PAGE STYLING */
+.appContainer {
+  background-color: aquamarine;
+  height: 100vh;
+  width: 100vw;
+  color: black;
+  font-weight: 16px;
+}
