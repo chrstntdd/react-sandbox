@@ -26,8 +26,6 @@
     "@types/react-dom": "^16.0.6",
     "autoprefixer": "^8.6.4",
     "babel-plugin-dynamic-import-node": "^2.0.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
-    "babel-preset-env": "^1.7.0",
     "docz": "^0.4.0",
     "express": "^4.16.3",
     "jest": "^23.2.0",
@@ -90,15 +88,14 @@
     "globals": {
       "ts-jest": {
         "babelConfig": {
-          "presets": [
-            "env"
-          ],
-          "plugins": [
-            "transform-es2015-modules-commonjs",
-            "babel-plugin-dynamic-import-node"
-          ]
-        },
-        "tsConfigFile": "./tsconfig.json"
+          "env": {
+            "test": {
+              "plugins": [
+                "dynamic-import-node"
+              ]
+            }
+          }
+        }
       }
     }
   }

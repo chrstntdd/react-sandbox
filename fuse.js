@@ -31,11 +31,19 @@ context(
         allowSyntheticDefaultImports: true,
         alias: { '@': '~' },
         plugins: [
-          [CSSModules(), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
+          [
+            CSSModules({
+              scopedName: IS_PRODUCTION ? '[local]___[sha512:hash:base64:8]' : '[local]__[emoji:6]'
+            }),
+            PostCSSPlugin(POSTCSS_PLUGINS),
+            CSSPlugin()
+          ],
           WebIndexPlugin({
             template: TEMPLATE,
             title: 'React Sandbox',
-            path: '/'
+            path: '/',
+            async: true,
+            pre: { relType: 'load' }
           }),
           IS_PRODUCTION &&
             QuantumPlugin({
