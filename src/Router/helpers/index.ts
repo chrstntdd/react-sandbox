@@ -1,9 +1,6 @@
 import React from 'react';
 
-import { Redirect } from '@/Router/Redirect';
 import { hashParser } from './hash-parser';
-
-////////////////////////////////////////////////////////////////////////////////
 
 const startsWith = (string: string, search: string): boolean =>
   string.substr(0, search.length) === search;
@@ -15,7 +12,7 @@ const shouldNavigate = event =>
 
 const stripSlashes = (str: string): string => str.replace(/(^\/+|\/+$)/g, '');
 
-const createNamedContext = (name, defaultValue) => {
+const createNamedContext = (name: string, defaultValue?: any): React.Context<any> => {
   const Ctx = React.createContext(defaultValue);
   Ctx.Consumer.displayName = `${name}.Consumer`;
   Ctx.Provider.displayName = `${name}.Provider`;
@@ -23,27 +20,10 @@ const createNamedContext = (name, defaultValue) => {
   return Ctx;
 };
 
-const createRoute = basepath => (element): Route => {
-  if (element.props.default) {
-    return { value: element, default: true };
-  }
-
-  let elementPath = element.type === Redirect ? element.props.from : element.props.path;
-
-  let path =
-    elementPath === '/' ? basepath : `${stripSlashes(basepath)}/${stripSlashes(elementPath)}`;
-
-  return {
-    value: element,
-    default: element.props.default,
-    path: element.props.children ? `${stripSlashes(path)}/*` : path
-  };
-};
-
 interface Route {
   default?: boolean;
   path?: string;
-  value: React.ReactNode;
+  value: React.Component;
 }
 
 interface ReturnRoute {
@@ -51,7 +31,7 @@ interface ReturnRoute {
   route: {
     default?: any;
     path: string;
-    value: React.ReactNode;
+    value: React.Component;
   };
   uri: string;
 }
@@ -215,8 +195,8 @@ const resolve = (to, base) => {
   // ../..      /users/123  =>  /
   // ../../one  /a/b/c/d    =>  /a/b/one
   // .././one   /a/b/c/d    =>  /a/b/c/one
-  let allSegments = baseSegments.concat(toSegments);
-  let segments = [];
+  const allSegments = baseSegments.concat(toSegments);
+  const segments = [];
   for (let i = 0, l = allSegments.length; i < l; i++) {
     let segment = allSegments[i];
     if (segment === '..') segments.pop();
@@ -301,16 +281,15 @@ const addQuery = (pathname, query) => pathname + (query ? `?${query}` : '');
 
 const reservedNames = ['uri', 'path'];
 
-////////////////////////////////////////////////////////////////////////////////
 export {
-  createRoute,
   createNamedContext,
-  startsWith,
-  pick,
-  match,
-  resolve,
   insertParams,
-  validateRedirect,
+  match,
+  pick,
+  resolve,
+  Route,
   shouldNavigate,
-  stripSlashes
+  startsWith,
+  stripSlashes,
+  validateRedirect
 };

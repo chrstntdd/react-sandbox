@@ -1,7 +1,8 @@
 import { noop, canUseDOM } from '@/utils';
 
-////////////////////////////////////////////////////////////////////////////////
-// createHistory(source) - wraps a history source
+/**
+ * @description To wrap a history source
+ */
 const getLocation = source => {
   return {
     ...source.location,
@@ -109,14 +110,13 @@ const createMemorySource = (initialPathname = '/') => {
 };
 
 /**
- * @description To retrieve a history source. Used window.history if
- * available, but falls back to using a memory history that mirrors
- * the same API
+ * @description To retrieve a history source. Uses `window.history`
+ * if available, but falls back to using a memory history that
+ * mirrors the same API
  */
 const getSource = () => (canUseDOM ? window : createMemorySource());
 
 const globalHistory = createHistory(getSource());
 const { navigate } = globalHistory;
 
-////////////////////////////////////////////////////////////////////////////////
 export { globalHistory, navigate, createHistory, createMemorySource };

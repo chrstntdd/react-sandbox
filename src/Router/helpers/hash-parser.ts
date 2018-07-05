@@ -22,7 +22,6 @@ const removeFirstAndLastChars = (inputString: string): string => inputString.sli
 const splitOnBar = (inputString: string): string[] => inputString.split('|');
 
 /**
- *
  * @description Applied to each segment in the hash string
  */
 const parseFacetString = (name: string, facetString: string): any => {
@@ -55,7 +54,6 @@ const parseFacetString = (name: string, facetString: string): any => {
 };
 
 /**
- *
  * @description To parse the `window.location.hash` value into an object.
  * Used exclusively on the SRP page.
  */

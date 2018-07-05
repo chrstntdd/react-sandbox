@@ -1,19 +1,26 @@
-import React from 'react';
-import { pick, resolve, match, createRoute, createNamedContext } from '@/Router/helpers';
-import { navigate, createHistory, createMemorySource } from '@/Router/history';
+import React, { forwardRef } from 'react';
+import ReactDOM from 'react-dom';
 
-/* imports to export at the top-level */
-import { Redirect } from '@/Router/Redirect';
-import { Location, ServerLocation, LocationProvider } from '@/Router/Location';
-import Link from '@/Router/Link';
+import { noop } from '@/utils';
+import {
+  createNamedContext,
+  insertParams,
+  match,
+  pick,
+  resolve,
+  Route,
+  shouldNavigate,
+  startsWith,
+  stripSlashes
+} from '@/Router/helpers';
+import { createHistory, createMemorySource, globalHistory, navigate } from '@/Router/history';
 
 // Sets baseuri and basepath for nested routers and links
 const BaseContext = createNamedContext('Base', { baseuri: '/', basepath: '/' });
 
 /**
  * @description Main Router component that connects the matched Component to
- *              the contexts.
- * @param props
+ * the contexts.
  */
 const Router = props => (
   <BaseContext.Consumer>
@@ -31,8 +38,7 @@ interface PRouterImpl {
   component: any;
   location: any;
   navigate: any;
-  /* optional */
-  primary: boolean;
+  primary?: boolean;
 }
 
 interface SRouterImpl {}
@@ -134,7 +140,9 @@ interface SFocusHandlerImpl {
 }
 
 class FocusHandlerImpl extends React.Component<PFocusHandlerImpl, SFocusHandlerImpl> {
-  state = {};
+  state = {
+    shouldFocus: null
+  };
 
   node = null;
 
@@ -207,21 +215,21 @@ class FocusHandlerImpl extends React.Component<PFocusHandlerImpl, SFocusHandlerI
   render() {
     const {
       children,
-      style,
+      component: Comp = 'div',
+      location,
       requestFocus,
       role = 'group',
-      component: Comp = 'div',
+      style,
       uri,
-      location,
       ...domProps
     } = this.props;
 
     return (
       <Comp
+        ref={n => (this.node = n)}
+        role={role}
         style={{ outline: 'none', ...style }}
         tabIndex="-1"
-        role={role}
-        ref={n => (this.node = n)}
         {...domProps}
       >
         <FocusContext.Provider value={this.requestFocus}>
@@ -257,6 +265,239 @@ const Match = ({ path, children }) => (
   </BaseContext.Consumer>
 );
 
+/**
+ * Location START
+ */
+
+// Location Context/Provider
+const LocationContext = createNamedContext('Location');
+
+// sets up a listener if there isn't one already so apps don't need to be
+// wrapped in some top level provider
+const Location = ({ children }) => (
+  <LocationContext.Consumer>
+    {context => (context ? children(context) : <LocationProvider>{children}</LocationProvider>)}
+  </LocationContext.Consumer>
+);
+
+interface PLocationProvider {
+  history?: any;
+  children?: (any) => JSX.Element;
+}
+interface SLocationProvider {
+  context: {
+    navigate: any;
+    location: any;
+  };
+  refs: {
+    unlisten: any;
+  };
+}
+
+class LocationProvider extends React.Component<PLocationProvider, SLocationProvider> {
+  public static defaultProps: Partial<PLocationProvider> = {
+    history: globalHistory
+  };
+
+  state = {
+    context: this.getContext(),
+    refs: { unlisten: null }
+  };
+
+  unmounted = null;
+
+  componentDidMount() {
+    this.state.refs.unlisten = this.props.history.listen(() => {
+      Promise.resolve().then(() => {
+        ReactDOM.unstable_deferredUpdates(() => {
+          if (!this.unmounted) {
+            this.setState(() => ({ context: this.getContext() }));
+          }
+        });
+      });
+    });
+  }
+
+  componentDidCatch(error, info) {
+    if (isRedirect(error)) {
+      this.props.history.navigate(error.uri, { replace: true });
+    } else {
+      throw error;
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (prevState.context.location !== this.state.context.location) {
+      this.props.history._onTransitionComplete();
+    }
+  }
+
+  componentWillUnmount() {
+    this.unmounted = true;
+    this.state.refs.unlisten();
+  }
+
+  getContext() {
+    const {
+      props: {
+        history: { navigate, location }
+      }
+    } = this;
+
+    return { navigate, location };
+  }
+
+  render() {
+    const isChildFn = typeof this.props.children === 'function';
+
+    return (
+      <LocationContext.Provider value={this.state.context}>
+        {isChildFn ? this.props.children(this.state.context) : this.props.children || null}
+      </LocationContext.Provider>
+    );
+  }
+}
+
+/**
+ *
+ * @description When you render a <Redirect/> a redirect request is thrown,
+ * preventing react from rendering the whole tree when we don’t want to do
+ * that work anyway.
+ *
+ * To enable SSR, wrap the top level <App /> component with this component
+ * and pass it the url that exists on the request object of whichever node
+ * framework is being used.
+ */
+const ServerLocation = ({ url, children }) => (
+  <LocationContext.Provider
+    value={{
+      location: { pathname: url },
+      navigate: () => {
+        throw new Error("You can't call navigate on the server.");
+      }
+    }}
+  >
+    {children}
+  </LocationContext.Provider>
+);
+
+/**
+ * Location END ////////////////////////////////////////////////
+ */
+
+/**
+ * Redirect START ///////////////////////////////////////////////
+ */
+
+function RedirectRequest(uri) {
+  this.uri = uri;
+}
+
+const isRedirect = o => o instanceof RedirectRequest;
+
+const redirectTo = to => {
+  throw new RedirectRequest(to);
+};
+
+interface PRedirectImpl {
+  from: string;
+  navigate: (toPath: string, state: { replace: boolean; state: object }) => any;
+  noThrow: boolean;
+  replace: boolean;
+  state: any;
+  to: string;
+}
+interface SRedirectImpl {}
+
+class RedirectImpl extends React.Component<PRedirectImpl, SRedirectImpl> {
+  // Support React < 16 with this hook
+  componentDidMount() {
+    let {
+      props: { navigate, to, from, replace = true, state, noThrow, ...props }
+    } = this;
+    Promise.resolve().then(() => {
+      navigate(insertParams(to, props), { replace, state });
+    });
+  }
+
+  render() {
+    let {
+      props: { navigate, to, from, replace, state, noThrow, ...props }
+    } = this;
+    if (!noThrow) redirectTo(insertParams(to, props));
+    return null;
+  }
+}
+
+const Redirect = props => (
+  <Location>{locationContext => <RedirectImpl {...locationContext} {...props} />}</Location>
+);
+
+/**
+ * Redirect END /////////////////////////////////////////////////////////////////
+ */
+
+/**
+ * Link START //////////////////////////////////////////////////////////////////
+ */
+
+const Link = forwardRef(({ innerRef, ...props }, ref) => (
+  <BaseContext.Consumer>
+    {({ basepath, baseuri }) => (
+      <Location>
+        {({ location, navigate }) => {
+          const { to, state, replace, getProps = noop, ...anchorProps } = props;
+          const href = resolve(to, baseuri);
+          const isCurrent = location.pathname === href;
+          const isPartiallyCurrent = startsWith(location.pathname, href);
+
+          return (
+            <a
+              ref={ref || innerRef}
+              aria-current={isCurrent ? 'page' : undefined}
+              {...anchorProps}
+              {...getProps({ isCurrent, isPartiallyCurrent, href, location })}
+              href={href}
+              onClick={event => {
+                if (anchorProps.onClick) anchorProps.onClick(event);
+                if (shouldNavigate(event)) {
+                  event.preventDefault();
+                  navigate(href, { state, replace });
+                }
+              }}
+            />
+          );
+        }}
+      </Location>
+    )}
+  </BaseContext.Consumer>
+));
+
+/**
+ * Link END //////////////////////////////////////////////////////////////////
+ */
+
+/**
+ * Extras
+ */
+
+const createRoute = basepath => (element): Route => {
+  if (element.props.default) {
+    return { value: element, default: true };
+  }
+
+  const elementPath = element.type === Redirect ? element.props.from : element.props.path;
+
+  const path =
+    elementPath === '/' ? basepath : `${stripSlashes(basepath)}/${stripSlashes(elementPath)}`;
+
+  return {
+    value: element,
+    default: element.props.default,
+    path: element.props.children ? `${stripSlashes(path)}/*` : path
+  };
+};
+
 export {
   Location,
   LocationProvider,
@@ -267,7 +508,6 @@ export {
   createMemorySource,
   navigate,
   BaseContext,
-  /* Components */
-  Link,
-  Redirect
+  Redirect,
+  Link
 };
