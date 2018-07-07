@@ -1,0 +1,4 @@
+.navContainer {
+  background-color: red;
+  composes: text from '../styles.css';
+}

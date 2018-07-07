@@ -5,6 +5,8 @@ import Page from '@/ui/components/Page';
 
 import generateLazyComponent from '@/ui/components/LazyComponent';
 
+import s from '@/ui/App.css';
+
 const About = generateLazyComponent(() => import('@/ui/pages/About'));
 const Home = generateLazyComponent(() => import('@/ui/pages/Home'));
 const Contact = generateLazyComponent(() => import('@/ui/pages/Contact'));
@@ -19,7 +21,7 @@ class App extends Component {
   render() {
     return (
       <Page>
-        <nav>
+        <nav className={`${s.navContainer} flex justify-center`}>
           <Link to="/">Home</Link>
           <Link to="/about">about</Link>
           <Link to="/contact">contact</Link>

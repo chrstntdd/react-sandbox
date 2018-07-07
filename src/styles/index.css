@@ -1,0 +1,154 @@
+/* INHERITED FROM OTHER CSS UTILITY FIRST PROJECTS LIKE TACHYONS AND TAILWIND */
+
+.text {
+  color: pink;
+  font-size: 26px;
+}
+
+/*
+  FLEXBOX
+  Media Query Extensions:
+   -ns = not-small
+   -m  = medium
+   -l  = large
+*/
+:global .flex {
+  display: flex;
+}
+:global .inline-flex {
+  display: inline-flex;
+}
+:global .flex-auto {
+  flex: 1 1 auto;
+  min-width: 0; /* 1 */
+  min-height: 0; /* 1 */
+}
+:global .flex-none {
+  flex: none;
+}
+:global .flex-column {
+  flex-direction: column;
+}
+:global .flex-row {
+  flex-direction: row;
+}
+:global .flex-wrap {
+  flex-wrap: wrap;
+}
+:global .flex-nowrap {
+  flex-wrap: nowrap;
+}
+:global .flex-wrap-reverse {
+  flex-wrap: wrap-reverse;
+}
+:global .flex-column-reverse {
+  flex-direction: column-reverse;
+}
+:global .flex-row-reverse {
+  flex-direction: row-reverse;
+}
+:global .items-start {
+  align-items: flex-start;
+}
+:global .items-end {
+  align-items: flex-end;
+}
+:global .items-center {
+  align-items: center;
+}
+:global .items-baseline {
+  align-items: baseline;
+}
+:global .items-stretch {
+  align-items: stretch;
+}
+:global .self-start {
+  align-self: flex-start;
+}
+:global .self-end {
+  align-self: flex-end;
+}
+:global .self-center {
+  align-self: center;
+}
+:global .self-baseline {
+  align-self: baseline;
+}
+:global .self-stretch {
+  align-self: stretch;
+}
+:global .justify-start {
+  justify-content: flex-start;
+}
+:global .justify-end {
+  justify-content: flex-end;
+}
+:global .justify-center {
+  justify-content: center;
+}
+:global .justify-between {
+  justify-content: space-between;
+}
+:global .justify-around {
+  justify-content: space-around;
+}
+:global .content-start {
+  align-content: flex-start;
+}
+:global .content-end {
+  align-content: flex-end;
+}
+:global .content-center {
+  align-content: center;
+}
+:global .content-between {
+  align-content: space-between;
+}
+:global .content-around {
+  align-content: space-around;
+}
+:global .content-stretch {
+  align-content: stretch;
+}
+:global .order-0 {
+  order: 0;
+}
+:global .order-1 {
+  order: 1;
+}
+:global .order-2 {
+  order: 2;
+}
+:global .order-3 {
+  order: 3;
+}
+:global .order-4 {
+  order: 4;
+}
+:global .order-5 {
+  order: 5;
+}
+:global .order-6 {
+  order: 6;
+}
+:global .order-7 {
+  order: 7;
+}
+:global .order-8 {
+  order: 8;
+}
+:global .order-last {
+  order: 99999;
+}
+:global .flex-grow-0 {
+  flex-grow: 0;
+}
+:global .flex-grow-1 {
+  flex-grow: 1;
+}
+:global .flex-shrink-0 {
+  flex-shrink: 0;
+}
+:global .flex-shrink-1 {
+  flex-shrink: 1;
+}
