@@ -5,6 +5,11 @@ import { render, cleanup } from 'react-testing-library';
 
 import App from '@/ui/App';
 
+jest.mock('@/Router', () => ({
+  Link: 'Link',
+  Router: 'Router'
+}));
+
 afterEach(cleanup);
 
 test('should render content', () => {

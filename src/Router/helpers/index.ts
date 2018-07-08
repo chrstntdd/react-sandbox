@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { hashParser } from './hash-parser';
+import { parseHashToObject, buildHashFromFilters } from './hash-parser';
 
 const startsWith = (string: string, search: string): boolean =>
   string.substr(0, search.length) === search;
@@ -50,9 +50,10 @@ const pick = (routes: Route[], uri: string, hash?: string): ReturnRoute | null =
   let default_;
 
   if (hash) {
-    hashParams = hashParser(hash);
+    hashParams = parseHashToObject(hash);
 
     console.log(hashParams);
+    console.log(buildHashFromFilters(hashParams));
   }
 
   const [uriPathname] = uri.split('?');
