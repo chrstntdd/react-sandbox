@@ -17,7 +17,6 @@ const facetsWithMultiValue = {
   sort: true
 };
 
-/* For facets that can be specified as 3+ */
 const facetsWithPlusValue = {
   beds: true,
   baths: true
@@ -74,10 +73,10 @@ const parseHashToObject = (hash: string): {} => {
     /* Start splitting the query string into more manageable pieces */
     const facetComponents = splitOnBar(curr);
 
-    /* [city=1, Virginia+Beach] */
+    /* [listing_type=1, [resale|new+home|foreclosure]] */
     const [facetType, facetValue] = [facetComponents.shift(), facetComponents.join('|')];
 
-    /* [city, 1] */
+    /* [listing_type, 1] */
     const [facetName, facetRanking] = facetType.split('=');
 
     /* Facets have been split enough to get parsed into their respective structure now */

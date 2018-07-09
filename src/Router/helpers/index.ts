@@ -28,6 +28,7 @@ interface Route {
 
 interface ReturnRoute {
   params: any;
+  hash: object;
   route: {
     default?: any;
     path: string;
@@ -48,13 +49,6 @@ const pick = (routes: Route[], uri: string, hash?: string): ReturnRoute | null =
   let hashParams;
   let match;
   let default_;
-
-  if (hash) {
-    hashParams = parseHashToObject(hash);
-
-    console.log(hashParams);
-    console.log(buildHashFromFilters(hashParams));
-  }
 
   const [uriPathname] = uri.split('?');
   const uriSegments = segmentize(uriPathname);
@@ -135,7 +129,12 @@ const pick = (routes: Route[], uri: string, hash?: string): ReturnRoute | null =
     }
   }
 
-  return match || default_ || null;
+  const matchWithHash = {
+    ...match,
+    ...(hash ? { hash: parseHashToObject(hash) } : {})
+  };
+
+  return matchWithHash || default_ || null;
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -143,31 +142,31 @@ const pick = (routes: Route[], uri: string, hash?: string): ReturnRoute | null =
 const match = (path, uri) => pick([{ path }], uri);
 
 ////////////////////////////////////////////////////////////////////////////////
-// resolve(to, basepath)
-//
-// Resolves URIs as though every path is a directory, no files.  Relative URIs
-// in the browser can feel awkward because not only can you be "in a directory"
-// you can be "at a file", too. For example
-//
-//     browserSpecResolve('foo', '/bar/') => /bar/foo
-//     browserSpecResolve('foo', '/bar') => /foo
-//
-// But on the command line of a file system, it's not as complicated, you can't
-// `cd` from a file, only directories.  This way, links have to know less about
-// their current path. To go deeper you can do this:
-//
-//     <Link to="deeper"/>
-//     // instead of
-//     <Link to=`{${props.uri}/deeper}`/>
-//
-// Just like `cd`, if you want to go deeper from the command line, you do this:
-//
-//     cd deeper
-//     # not
-//     cd $(pwd)/deeper
-//
-// By treating every path as a directory, linking to relative paths should
-// require less contextual information and (fingers crossed) be more intuitive.
+/***
+ * @description Resolves URIs as though every path is a directory, no files.
+ * Relative URIs in the browser can feel awkward because not only can you be
+ * "in a directory" you can be "at a file", too. For example
+ *
+ *     browserSpecResolve('foo', '/bar/') => /bar/foo
+ *     browserSpecResolve('foo', '/bar') => /foo
+ *
+ * But on the command line of a file system, it's not as complicated, you can't
+ * `cd` from a file, only directories.  This way, links have to know less about
+ * their current path. To go deeper you can do this:
+ *
+ *     <Link to="deeper"/>
+ *     // instead of
+ *     <Link to=`{${props.uri}/deeper}`/>
+ *
+ * Just like `cd`, if you want to go deeper from the command line, you do this:
+ *
+ *     cd deeper
+ *     # not
+ *     cd $(pwd)/deeper
+ *
+ * By treating every path as a directory, linking to relative paths should
+ * require less contextual information and (fingers crossed) be more intuitive.
+ */
 const resolve = (to, base) => {
   // /foo/bar, /baz/qux => /foo/bar
   if (startsWith(to, '/')) {
@@ -264,6 +263,7 @@ const rankRoute = (route, index) => {
 
         return score;
       }, 0);
+
   return { route, score, index };
 };
 

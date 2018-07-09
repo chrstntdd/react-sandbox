@@ -67,6 +67,7 @@ class RouterImpl extends React.PureComponent<PRouterImpl, SRouterImpl> {
       let {
         params,
         uri,
+        hash,
         route,
         route: { value: element }
       } = match;
@@ -76,6 +77,7 @@ class RouterImpl extends React.PureComponent<PRouterImpl, SRouterImpl> {
 
       const props = {
         ...params,
+        hash,
         uri,
         location,
         navigate: (to, options) => navigate(resolve(to, uri), options)
