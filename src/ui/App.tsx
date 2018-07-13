@@ -12,6 +12,7 @@ const Home = generateLazyComponent(() => import('@/ui/pages/Home'));
 const Contact = generateLazyComponent(() => import('@/ui/pages/Contact'));
 const Dashboard = generateLazyComponent(() => import('@/ui/pages/Dashboard'));
 const SearchResults = generateLazyComponent(() => import('@/ui/pages/SearchResults'));
+const NotFound = generateLazyComponent(() => import('@/ui/pages/NotFound'));
 
 /**
  * @description CURRENT CODE SPLITTING IMPLEMENTATION SPLITS
@@ -37,7 +38,8 @@ class App extends Component {
           <Contact path="/contact" />
           <Dashboard path="/dashboard" />
           {/* MATCHES WHEN ANYTHING ELSE EXISTS PAST THE TOP LEVEL '/' */}
-          <SearchResults path="/*" />
+          <SearchResults path="/:location/:property-type/*" />
+          <NotFound default />
         </Router>
       </Page>
     );

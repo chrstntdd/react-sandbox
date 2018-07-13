@@ -134,7 +134,7 @@ const pick = (routes: Route[], uri: string, hash?: string): ReturnRoute | null =
     ...(hash ? { hash: parseHashToObject(hash) } : {})
   };
 
-  return matchWithHash || default_ || null;
+  return default_ || matchWithHash || null;
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -39,7 +39,7 @@ class SearchResults extends Component {
   };
 
   componentDidMount() {
-    mergeSrpPathWithHash(this.state.srpPath, this.props.hash);
+    // mergeSrpPathWithHash(this.state.srpPath, this.props.hash);
   }
 
   render() {
