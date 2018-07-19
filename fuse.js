@@ -13,12 +13,7 @@ const autoprefixer = require('autoprefixer');
 
 const { info } = console;
 
-const POSTCSS_PLUGINS = [
-  autoprefixer({
-    browsers: ['>0.25%', 'Explorer 11'],
-    grid: true
-  })
-];
+const POSTCSS_PLUGINS = [autoprefixer({ browsers: ['>0.25%', 'Explorer 11'] })];
 
 const CLIENT_OUT = join(__dirname, 'build');
 const TEMPLATE = join(__dirname, 'src/index.html');
@@ -31,15 +26,24 @@ context(
         homeDir: 'src',
         output: `${CLIENT_OUT}/$name.js`,
         target: 'browser',
+        sourceMaps: true,
         cache: !IS_PRODUCTION,
         allowSyntheticDefaultImports: true,
         alias: { '@': '~' },
         plugins: [
-          [CSSModules(), PostCSSPlugin(POSTCSS_PLUGINS), CSSPlugin()],
+          [
+            CSSModules({
+              scopedName: IS_PRODUCTION ? '[local]___[sha512:hash:base64:8]' : '[local]__[emoji:6]'
+            }),
+            PostCSSPlugin(POSTCSS_PLUGINS),
+            CSSPlugin()
+          ],
           WebIndexPlugin({
             template: TEMPLATE,
             title: 'React Sandbox',
-            path: '/'
+            path: '/',
+            async: true,
+            pre: { relType: 'load' }
           }),
           IS_PRODUCTION &&
             QuantumPlugin({

@@ -4,7 +4,7 @@ import Task from 'data.task';
 import 'jest-dom/extend-expect';
 import { render, cleanup, waitForElement } from 'react-testing-library';
 
-import RemoteDataFetcher from './';
+import RemoteDataFetcher from '@/ui/components/RemoteDataFetcher';
 
 jest.useFakeTimers();
 

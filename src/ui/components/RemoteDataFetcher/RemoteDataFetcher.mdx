@@ -12,6 +12,7 @@ import RemoteDataFetcher from './';
 
 ## Basic usage
 
+When the remote data has resolved successfully
 
 <Playground>
   {() => {
@@ -22,6 +23,34 @@ import RemoteDataFetcher from './';
 
     const MockTask = new Task((reject, resolve) => {
       fakeFetchSuccess()
+        .then(resolve)
+        .catch(reject);
+    });
+
+    return (<RemoteDataFetcher
+      task={MockTask}
+      handleTask={{
+        notAsked: () => <div>Nothing loaded</div>,
+        loading: () => <div>Loading...</div>,
+        error: error => <div>Something went wrong: {error}</div>,
+        success: data => <div>Got yer data: {data}</div>,
+      }}
+    />);
+  }}
+</Playground>
+
+
+When the remote data has encountered an error
+
+<Playground>
+  {() => {
+    const fakeFetchFailure = () =>
+      new Promise((resolve, reject) => {
+        setTimeout(() => reject('error'), 0);
+      });
+
+    const MockTask = new Task((reject, resolve) => {
+      fakeFetchFailure()
         .then(resolve)
         .catch(reject);
     });
